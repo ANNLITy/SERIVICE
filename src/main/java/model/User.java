@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -26,15 +27,17 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_role_id", referencedColumnName = "id")
-    private Role role;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private Set<Role> roleSet;
 
-    public User(String name, String login, String password, Role role) {
+    public User(String name, String login, String password, Set<Role> roleSet) {
         this.name = name;
         this.login = login;
         this.password = password;
-        this.role = role;
+        this.roleSet = roleSet;
     }
 
     @Override
@@ -42,11 +45,22 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(login, user.login) && Objects.equals(password, user.password) && Objects.equals(role, user.role);
+        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(login, user.login) && Objects.equals(password, user.password) && Objects.equals(roleSet, user.roleSet);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, login, password, role);
+        return Objects.hash(id, name, login, password, roleSet);
     }
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", roleSet=" + roleSet +
+                '}';
+    }
+
 }

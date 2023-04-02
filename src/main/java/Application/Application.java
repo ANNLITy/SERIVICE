@@ -6,13 +6,15 @@ import DAO.UserDAOImpl;
 import model.Role;
 import model.User;
 
+import java.util.Set;
+
 public class Application {
     public static void main(String[] args) {
         UserDAO userDAO = new UserDAOImpl();
         RoleDAO roleDAO = new RoleDAOImpl();
 
         Role role = new Role(3, "Third_plan");
-        User user = new User(3,"Andrey", "T", "CCC", role);
+        User user = new User(3,"Andrey", "T", "CCC", Set.of(role));
 
         roleDAO.getAll().forEach(System.out::println);
         userDAO.getUsers().forEach(System.out::println);

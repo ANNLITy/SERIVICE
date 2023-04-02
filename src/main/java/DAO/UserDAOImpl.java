@@ -25,7 +25,9 @@ public class UserDAOImpl implements UserDAO {
         User user;
         try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            user = session.get(User.class, id);
+            Query<User> query = session.createQuery("FROM User u JOIN FETCH u.roleSet WHERE u.id = :id");
+            query.setParameter("id", id);
+            user = query.getSingleResult();
             transaction.commit();
         }
         return user;
@@ -34,11 +36,10 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public List<User> getByRole(Role role) {
         List<User> users;
-        Integer id = role.getId();
         try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            Query<User> query = session.createQuery("FROM User WHERE role.id = :id", User.class);
-            query.setParameter("id", id);
+            Query<User> query = session.createQuery("FROM User u JOIN FETCH u.roleSet r WHERE r = :role", User.class);
+            query.setParameter("role", role);
             users = query.getResultList();
             transaction.commit();
         }
@@ -59,7 +60,6 @@ public class UserDAOImpl implements UserDAO {
         try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
             session.save(user);
-            session.update(user.getRole());
             transaction.commit();
         }
     }
